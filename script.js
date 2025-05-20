@@ -15,17 +15,30 @@ function generateRoundRobinMatches(teams) {
     const half = numTeams / 2;
     const teamList = teams.map(team => team.name);
 
+    // Turno
+    let baseList = [...teamList];
     for (let i = 0; i < numTeams - 1; i++) {
         const round = [];
         for (let j = 0; j < half; j++) {
-            const team1 = teamList[j];
-            const team2 = teamList[numTeams - 1 - j];
+            const team1 = baseList[j];
+            const team2 = baseList[numTeams - 1 - j];
             round.push({ team1, team2, score1: null, score2: null });
         }
         rounds.push(round);
-        teamList.splice(1, 0, teamList.pop());
+        baseList.splice(1, 0, baseList.pop());
     }
-    return rounds;
+
+    // Returno invertendo o mando de campo
+    const returnRounds = rounds.map(round =>
+        round.map(match => ({
+            team1: match.team2,
+            team2: match.team1,
+            score1: null,
+            score2: null
+        }))
+    );
+
+    return rounds.concat(returnRounds);
 }
 
 let rounds = generateRoundRobinMatches(teams);
@@ -215,7 +228,7 @@ document.querySelectorAll('input[type="number"]').forEach(input => {
 });
 
 document.getElementById('reset-all').addEventListener('click', resetAllMatches);
-
+localStorage.removeItem('campeonatoData');
 loadSavedData();
 updateClassification();
 renderMatches();
