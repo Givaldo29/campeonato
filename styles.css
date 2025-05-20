@@ -1,0 +1,213 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    padding: 10px;
+    background: linear-gradient(rgba(0, 50, 0, 0.7), rgba(0, 30, 0, 0.8));
+    min-height: 100vh;
+    color: #fff;
+}
+
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+    text-align: center;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 1.3rem;
+    background-color: rgba(0, 100, 0, 0.8);
+    border-radius: 8px;
+}
+
+h2 {
+    text-align: center;
+    margin: 8px 0;
+    padding: 8px;
+    font-size: 1.1rem;
+    background-color: rgba(0, 80, 0, 0.7);
+    border-radius: 6px;
+}
+
+.table-wrapper {
+    margin-bottom: 15px;
+}
+
+.table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+table {
+    width: 100%;
+    min-width: 450px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px 5px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+th {
+    background-color: rgba(0, 100, 0, 0.8);
+    color: white;
+    position: sticky;
+    top: 0;
+    font-weight: bold;
+}
+
+.team-name {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    padding: 0 3px;
+}
+
+.match-score {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+input[type="number"] {
+    width: 35px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-weight: bold;
+}
+
+.round-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: rgba(0, 80, 0, 0.6);
+    border-radius: 8px;
+}
+
+.round-navigation button {
+    padding: 8px 15px;
+    background-color: rgba(0, 120, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.round-navigation button:active {
+    background-color: rgba(0, 150, 0, 0.9);
+    transform: scale(0.95);
+}
+
+#round-info {
+    font-weight: bold;
+    min-width: 80px;
+    text-align: center;
+}
+
+.reset-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 20px 0 10px;
+    background-color: rgba(200, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.reset-button:hover {
+    background-color: rgba(180, 0, 0, 0.8);
+}
+
+.reset-button:active {
+    background-color: rgba(160, 0, 0, 0.9);
+    transform: scale(0.98);
+}
+
+@media (max-width: 768px) {
+    table {
+        min-width: unset;
+        font-size: 0.85rem;
+    }
+    
+    th, td {
+        padding: 6px 3px;
+    }
+    
+    .team-name {
+        max-width: 70px;
+    }
+    
+    input[type="number"] {
+        width: 32px;
+        padding: 3px;
+    }
+    
+    .round-navigation button {
+        padding: 7px 12px;
+    }
+    
+    h1 {
+        font-size: 1.2rem;
+        padding: 8px;
+    }
+    
+    h2 {
+        font-size: 1rem;
+        padding: 6px;
+    }
+    
+    .reset-button {
+        padding: 10px;
+        font-size: 0.9rem;
+        margin: 15px 0 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .team-name {
+        max-width: 60px;
+    }
+    
+    input[type="number"] {
+        width: 28px;
+    }
+    
+    .round-navigation button {
+        padding: 6px 10px;
+    }
+    
+    .reset-button {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+}
