@@ -1,50 +1,97 @@
-const teams = [
-    { name: "São Paulo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-    { name: "Palmeiras", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-    { name: "Corinthians", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-    { name: "Santos", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-    { name: "Flamengo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-    { name: "Fluminense", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-    { name: "Botafogo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-    { name: "Cruzeiro", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 }
-];
+let teams = [];
+let rounds = [];
+let currentRound = 0;
+let doubleRound = true; // Padrão: turno e returno
+
+function initializeTeams() {
+    const savedTeams = localStorage.getItem('customTeams');
+    const savedSettings = localStorage.getItem('tournamentSettings');
+    
+    if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        doubleRound = settings.doubleRound !== undefined ? settings.doubleRound : true;
+    }
+
+    if (savedTeams) {
+        teams = JSON.parse(savedTeams);
+    } else {
+        // Times padrão
+        teams = [
+            { name: "São Paulo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
+            { name: "Palmeiras", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
+            { name: "Corinthians", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
+            { name: "Santos", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
+            { name: "Flamengo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
+            { name: "Fluminense", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
+            { name: "Botafogo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
+            { name: "Cruzeiro", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 }
+        ];
+        localStorage.setItem('customTeams', JSON.stringify(teams));
+    }
+    
+    generateMatches();
+    updateClassification();
+    renderMatches();
+    updateRoundInfo();
+}
 
 function generateRoundRobinMatches(teams) {
     const numTeams = teams.length;
     const rounds = [];
-    const half = numTeams / 2;
+    const half = Math.ceil(numTeams / 2);
     const teamList = teams.map(team => team.name);
 
-    // Turno
-    let baseList = [...teamList];
     for (let i = 0; i < numTeams - 1; i++) {
         const round = [];
         for (let j = 0; j < half; j++) {
-            const team1 = baseList[j];
-            const team2 = baseList[numTeams - 1 - j];
-            round.push({ team1, team2, score1: null, score2: null });
+            const team1 = teamList[j];
+            const team2 = teamList[numTeams - 1 - j];
+            if (team2) { // Evita times sem oponente
+                const existingMatch = findExistingMatch(team1, team2);
+                if (existingMatch) {
+                    round.push(existingMatch);
+                } else {
+                    round.push({ team1, team2, score1: null, score2: null });
+                }
+            }
         }
         rounds.push(round);
-        baseList.splice(1, 0, baseList.pop());
+        teamList.splice(1, 0, teamList.pop());
     }
-
-    // Returno invertendo o mando de campo
-    const returnRounds = rounds.map(round =>
-        round.map(match => ({
-            team1: match.team2,
-            team2: match.team1,
-            score1: null,
-            score2: null
-        }))
-    );
-
-    return rounds.concat(returnRounds);
+    return rounds;
 }
 
-let rounds = generateRoundRobinMatches(teams);
-let currentRound = 0;
+function findExistingMatch(team1, team2) {
+    for (const round of rounds) {
+        for (const match of round) {
+            if ((match.team1 === team1 && match.team2 === team2) || 
+                (match.team1 === team2 && match.team2 === team1)) {
+                return match;
+            }
+        }
+    }
+    return null;
+}
+
+function generateMatches() {
+    rounds = generateRoundRobinMatches(teams);
+    
+    // Se for turno e returno, duplica as rodadas invertendo os jogos
+    if (doubleRound) {
+        const returnRounds = rounds.map(round => 
+            round.map(match => ({
+                team1: match.team2,
+                team2: match.team1,
+                score1: null,
+                score2: null
+            }))
+        );
+        rounds = rounds.concat(returnRounds);
+    }
+}
 
 function loadSavedData() {
+    initializeTeams();
     const savedData = localStorage.getItem('campeonatoData');
     if (savedData) {
         const { savedRounds, savedCurrentRound, savedTeams } = JSON.parse(savedData);
@@ -58,6 +105,10 @@ function loadSavedData() {
             });
         }
     }
+    
+    updateClassification();
+    renderMatches();
+    updateRoundInfo();
 }
 
 function saveData() {
@@ -71,13 +122,6 @@ function saveData() {
 
 function resetAllMatches() {
     if (confirm('Tem certeza que deseja zerar TODOS os resultados do campeonato?\nEsta ação não pode ser desfeita.')) {
-        rounds.forEach(round => {
-            round.forEach(match => {
-                match.score1 = null;
-                match.score2 = null;
-            });
-        });
-        
         teams.forEach(team => {
             team.points = 0;
             team.wins = 0;
@@ -88,6 +132,7 @@ function resetAllMatches() {
             team.sg = 0;
         });
         
+        generateMatches();
         currentRound = 0;
         
         renderMatches();
@@ -95,7 +140,7 @@ function resetAllMatches() {
         updateRoundInfo();
         saveData();
         
-        alert('Todos os resultados foram resetados!');
+        alert('Todos os resultados foram resetados e os jogos regenerados!');
     }
 }
 
@@ -170,6 +215,8 @@ function renderMatches() {
     const tbody = document.querySelector("#matches tbody");
     tbody.innerHTML = "";
     
+    if (!rounds[currentRound]) return;
+    
     rounds[currentRound].forEach((match, index) => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -201,7 +248,7 @@ function renderMatches() {
 }
 
 function updateRoundInfo() {
-    document.getElementById("round-info").textContent = `Rodada ${currentRound + 1}`;
+    document.getElementById("round-info").textContent = `Rodada ${currentRound + 1} de ${rounds.length}`;
     saveData();
 }
 
@@ -228,8 +275,21 @@ document.querySelectorAll('input[type="number"]').forEach(input => {
 });
 
 document.getElementById('reset-all').addEventListener('click', resetAllMatches);
-localStorage.removeItem('campeonatoData');
+
+document.getElementById('team-generator').addEventListener('click', function() {
+    window.open('team-generator.html', 'Gerador de Times', 'width=600,height=800');
+});
+
+window.addEventListener('message', function(event) {
+    if (event.data.type === 'teamsUpdated') {
+        localStorage.setItem('customTeams', JSON.stringify(event.data.teams));
+        if (event.data.doubleRound !== undefined) {
+            doubleRound = event.data.doubleRound;
+            localStorage.setItem('tournamentSettings', JSON.stringify({ doubleRound }));
+        }
+        initializeTeams();
+    }
+});
+
+// Inicializa o campeonato
 loadSavedData();
-updateClassification();
-renderMatches();
-updateRoundInfo();

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Times</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gerador de Times</h1>
+        
+        <div class="input-section">
+            <label for="team-count">Número de Times (2-20):</label>
+            <input type="number" id="team-count" min="2" max="20" value="8">
+            
+            <div class="toggle-section">
+                <span>Formato do Campeonato:</span>
+                <button id="toggle-format" class="toggle-button">Turno e Returno</button>
+            </div>
+            
+            <button id="generate-fields">Gerar Campos</button>
+            
+            <div id="team-inputs"></div>
+            
+            <button id="save-teams" class="save-button">Salvar Times e Voltar</button>
+        </div>
+    </div>
+
+    <script>
+        let doubleRound = true;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Carrega configurações existentes
+            const savedTeams = localStorage.getItem('customTeams');
+            const savedSettings = localStorage.getItem('tournamentSettings');
+            
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                doubleRound = settings.doubleRound !== undefined ? settings.doubleRound : true;
+            }
+            
+            // Configura elementos iniciais
+            const teamCountInput = document.getElementById('team-count');
+            teamCountInput.value = savedTeams ? JSON.parse(savedTeams).length : 8;
+            
+            updateToggleButton();
+            generateTeamFields(parseInt(teamCountInput.value));
+            
+            // Preenche nomes existentes
+            if (savedTeams) {
+                const teams = JSON.parse(savedTeams);
+                teams.forEach((team, index) => {
+                    const input = document.getElementById(`team-${index}`);
+                    if (input) input.value = team.name;
+                });
+            }
+        });
+
+        // Botão de alternar formato
+        document.getElementById('toggle-format').addEventListener('click', function() {
+            doubleRound = !doubleRound;
+            updateToggleButton();
+        });
+
+        function updateToggleButton() {
+            const button = document.getElementById('toggle-format');
+            button.textContent = doubleRound ? 'Turno e Returno' : 'Apenas Turno';
+            button.style.backgroundColor = doubleRound ? '#009933' : '#cc3300';
+        }
+
+        function generateTeamFields(count) {
+            const container = document.getElementById('team-inputs');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const div = document.createElement('div');
+                div.className = 'team-input-row';
+                div.innerHTML = `
+                    <label for="team-${i}">Time ${i + 1}:</label>
+                    <input type="text" id="team-${i}" placeholder="Nome do Time">
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        document.getElementById('generate-fields').addEventListener('click', function() {
+            const count = parseInt(document.getElementById('team-count').value);
+            if (count < 2 || count > 20) {
+                alert('Por favor, insira um número entre 2 e 20');
+                return;
+            }
+            generateTeamFields(count);
+        });
+
+        document.getElementById('save-teams').addEventListener('click', function() {
+            const inputs = document.querySelectorAll('#team-inputs input[type="text"]');
+            const teams = Array.from(inputs).map(input => ({
+                name: input.value.trim() || `Time ${parseInt(input.id.split('-')[1]) + 1}`,
+                points: 0,
+                wins: 0,
+                draws: 0,
+                losses: 0,
+                gp: 0,
+                gc: 0,
+                sg: 0
+            }));
+            
+            if (teams.length < 2) {
+                alert('Você precisa criar pelo menos 2 times!');
+                return;
+            }
+            
+            // Salva times e configurações
+            localStorage.setItem('customTeams', JSON.stringify(teams));
+            localStorage.setItem('tournamentSettings', JSON.stringify({ doubleRound }));
+            
+            window.opener.postMessage({ 
+                type: 'teamsUpdated', 
+                teams,
+                doubleRound 
+            }, '*');
+            window.close();
+        });
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background: linear-gradient(rgba(0, 50, 0, 0.7), rgba(0, 30, 0, 0.8));
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .toggle-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .toggle-section span {
+            font-weight: bold;
+        }
+        
+        .toggle-button {
+            padding: 8px 15px;
+            background-color: #009933;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .team-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        label {
+            min-width: 80px;
+            font-weight: bold;
+        }
+        
+        input[type="number"], input[type="text"] {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            flex-grow: 1;
+        }
+        
+        input[type="number"] {
+            width: 60px;
+            text-align: center;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #0055aa;
+        }
+        
+        #generate-fields {
+            background-color: #009933;
+        }
+        
+        #generate-fields:hover {
+            background-color: #008822;
+        }
+        
+        #save-teams {
+            margin-top: 20px;
+            background-color: #0066cc;
+        }
+        
+        #team-inputs {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 600px) {
+            .team-input-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            input[type="text"] {
+                width: 100%;
+            }
+        }
+    </style>
+</body>
+</html>
