@@ -1,7 +1,26 @@
+// ======== CONTROLE DE VERSÃO ========
+const APP_VERSION = '1.0.3';
+
+function checkVersion() {
+    const lastVersion = localStorage.getItem('app_version');
+    
+    if (lastVersion !== APP_VERSION) {
+        console.log(`Atualizando versão ${lastVersion || 'N/A'} para ${APP_VERSION}`);
+        localStorage.setItem('app_version', APP_VERSION);
+        
+        if (lastVersion && lastVersion !== APP_VERSION) {
+            window.location.reload(true);
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', checkVersion);
+
+// ======== CÓDIGO PRINCIPAL ========
 let teams = [];
 let rounds = [];
 let currentRound = 0;
-let doubleRound = true; // Padrão: turno e returno
+let doubleRound = true;
 
 function initializeTeams() {
     const savedTeams = localStorage.getItem('customTeams');
@@ -15,7 +34,6 @@ function initializeTeams() {
     if (savedTeams) {
         teams = JSON.parse(savedTeams);
     } else {
-        // Times padrão
         teams = [
             { name: "São Paulo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
             { name: "Palmeiras", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
@@ -46,7 +64,7 @@ function generateRoundRobinMatches(teams) {
         for (let j = 0; j < half; j++) {
             const team1 = teamList[j];
             const team2 = teamList[numTeams - 1 - j];
-            if (team2) { // Evita times sem oponente
+            if (team2) {
                 const existingMatch = findExistingMatch(team1, team2);
                 if (existingMatch) {
                     round.push(existingMatch);
@@ -76,7 +94,6 @@ function findExistingMatch(team1, team2) {
 function generateMatches() {
     rounds = generateRoundRobinMatches(teams);
     
-    // Se for turno e returno, duplica as rodadas invertendo os jogos
     if (doubleRound) {
         const returnRounds = rounds.map(round => 
             round.map(match => ({

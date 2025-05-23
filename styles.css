@@ -1,3 +1,4 @@
+/* styles.css v1.0.3 */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -52,15 +53,14 @@ h2 {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+/* TABELA GERAL */
 table {
     width: 100%;
-    min-width: 450px;
     border-collapse: collapse;
 }
 
 th, td {
     padding: 8px 5px;
-    text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -72,22 +72,66 @@ th {
     font-weight: bold;
 }
 
+/* TABELA DE CLASSIFICAÇÃO */
+#classification {
+    min-width: 450px;
+}
+
+#classification th, 
+#classification td {
+    text-align: center;
+}
+
 .team-name {
-    max-width: 80px;
+    max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     text-align: center;
-    padding: 0 3px;
+    padding: 0 8px;
+}
+
+/* TABELA DE JOGOS - CONFRONTOS */
+#matches {
+    min-width: 320px;
+    table-layout: fixed;
+}
+
+#matches th, #matches td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+#matches td {
+    padding: 10px 5px;
 }
 
 .match-score {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
+    margin: 0 auto;
+    width: fit-content;
 }
 
+.match-score input {
+    width: 42px;
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.match-score span {
+    font-weight: bold;
+}
+
+/* ELEMENTOS COMUNS */
 input[type="number"] {
     width: 35px;
     padding: 4px;
@@ -179,21 +223,20 @@ input[type="number"] {
 
 @media (max-width: 768px) {
     table {
-        min-width: unset;
         font-size: 0.85rem;
     }
     
     th, td {
-        padding: 6px 3px;
+        padding: 8px 3px;
     }
     
     .team-name {
-        max-width: 70px;
+        max-width: 90px;
     }
     
-    input[type="number"] {
-        width: 32px;
-        padding: 3px;
+    .match-score input {
+        width: 38px;
+        padding: 4px;
     }
     
     .round-navigation button {
@@ -218,15 +261,25 @@ input[type="number"] {
 
 @media (max-width: 480px) {
     .team-name {
-        max-width: 60px;
+        max-width: 70px;
     }
     
-    input[type="number"] {
-        width: 28px;
+    #matches {
+        min-width: 280px;
+    }
+    
+    .match-score {
+        gap: 5px;
+    }
+    
+    .match-score input {
+        width: 32px;
+        padding: 3px;
     }
     
     .round-navigation button {
         padding: 6px 10px;
+        font-size: 0.8rem;
     }
     
     .reset-button, .generator-button {
