@@ -1,7 +1,10 @@
+const APP_VERSION = "1.0.0";
+const LAST_UPDATE = new Date().toLocaleDateString('pt-BR');
+
 let teams = [];
 let rounds = [];
 let currentRound = 0;
-let doubleRound = true; // Padrão: turno e returno
+let doubleRound = true;
 
 function initializeTeams() {
     const savedTeams = localStorage.getItem('customTeams');
@@ -15,7 +18,6 @@ function initializeTeams() {
     if (savedTeams) {
         teams = JSON.parse(savedTeams);
     } else {
-        // Times padrão
         teams = [
             { name: "São Paulo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
             { name: "Palmeiras", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
@@ -46,7 +48,7 @@ function generateRoundRobinMatches(teams) {
         for (let j = 0; j < half; j++) {
             const team1 = teamList[j];
             const team2 = teamList[numTeams - 1 - j];
-            if (team2) { // Evita times sem oponente
+            if (team2) {
                 const existingMatch = findExistingMatch(team1, team2);
                 if (existingMatch) {
                     round.push(existingMatch);
@@ -76,7 +78,6 @@ function findExistingMatch(team1, team2) {
 function generateMatches() {
     rounds = generateRoundRobinMatches(teams);
     
-    // Se for turno e returno, duplica as rodadas invertendo os jogos
     if (doubleRound) {
         const returnRounds = rounds.map(round => 
             round.map(match => ({
@@ -252,6 +253,18 @@ function updateRoundInfo() {
     saveData();
 }
 
+function updateVersionDisplay() {
+    const versionElement = document.getElementById('app-version');
+    if (versionElement) {
+        versionElement.textContent = `Versão ${APP_VERSION} | Atualizado em ${LAST_UPDATE}`;
+        versionElement.style.transition = 'all 0.3s';
+        versionElement.style.color = '#4CAF50';
+        setTimeout(() => {
+            versionElement.style.color = 'rgba(255, 255, 255, 0.7)';
+        }, 1000);
+    }
+}
+
 document.getElementById("prev-round").addEventListener("click", () => {
     if (currentRound > 0) {
         currentRound--;
@@ -291,5 +304,8 @@ window.addEventListener('message', function(event) {
     }
 });
 
-// Inicializa o campeonato
-loadSavedData();
+window.addEventListener('DOMContentLoaded', () => {
+    loadSavedData();
+    updateVersionDisplay();
+    window.addEventListener('focus', updateVersionDisplay);
+});

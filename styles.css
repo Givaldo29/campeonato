@@ -179,6 +179,16 @@ input[type="number"] {
     transform: scale(0.98);
 }
 
+.version-info {
+    text-align: center;
+    margin-top: 15px;
+    padding: 8px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
 @media (max-width: 768px) {
     table {
         min-width: unset;
@@ -239,5 +249,10 @@ input[type="number"] {
     .reset-button, .generator-button {
         padding: 8px;
         font-size: 0.85rem;
+    }
+    
+    .version-info {
+        font-size: 0.7rem;
+        padding: 6px;
     }
 }

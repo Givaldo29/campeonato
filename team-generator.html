@@ -31,7 +31,6 @@
         let doubleRound = true;
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Carrega configurações existentes
             const savedTeams = localStorage.getItem('customTeams');
             const savedSettings = localStorage.getItem('tournamentSettings');
             
@@ -40,14 +39,12 @@
                 doubleRound = settings.doubleRound !== undefined ? settings.doubleRound : true;
             }
             
-            // Configura elementos iniciais
             const teamCountInput = document.getElementById('team-count');
             teamCountInput.value = savedTeams ? JSON.parse(savedTeams).length : 8;
             
             updateToggleButton();
             generateTeamFields(parseInt(teamCountInput.value));
             
-            // Preenche nomes existentes
             if (savedTeams) {
                 const teams = JSON.parse(savedTeams);
                 teams.forEach((team, index) => {
@@ -57,7 +54,6 @@
             }
         });
 
-        // Botão de alternar formato
         document.getElementById('toggle-format').addEventListener('click', function() {
             doubleRound = !doubleRound;
             updateToggleButton();
@@ -111,7 +107,6 @@
                 return;
             }
             
-            // Salva times e configurações
             localStorage.setItem('customTeams', JSON.stringify(teams));
             localStorage.setItem('tournamentSettings', JSON.stringify({ doubleRound }));
             
