@@ -223,8 +223,8 @@ input[type="number"] {
     }
     
     .buttons-container {
-        flex-direction: column;
-        gap: 10px;
+        flex-direction: row;
+        gap: 8px;
     }
     
     .reset-button, .generator-button {
@@ -246,6 +246,11 @@ input[type="number"] {
         padding: 6px 10px;
     }
     
+    .buttons-container {
+        flex-direction: row;
+        gap: 6px;
+    }
+    
     .reset-button, .generator-button {
         padding: 8px;
         font-size: 0.85rem;
@@ -254,5 +259,16 @@ input[type="number"] {
     .version-info {
         font-size: 0.7rem;
         padding: 6px;
+    }
+}
+
+@media (max-width: 360px) {
+    .buttons-container {
+        gap: 5px;
+    }
+    
+    .reset-button, .generator-button {
+        padding: 6px;
+        font-size: 0.8rem;
     }
 }
