@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>Gerador de Times</title>
-    <link rel="stylesheet" href="styles.css?v=1.0.3">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
@@ -31,13 +28,10 @@
     </div>
 
     <script>
-        // Controle de versão
-        const APP_VERSION = '1.0.2';
-        localStorage.setItem('app_version', APP_VERSION);
-
         let doubleRound = true;
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Carrega configurações existentes
             const savedTeams = localStorage.getItem('customTeams');
             const savedSettings = localStorage.getItem('tournamentSettings');
             
@@ -46,12 +40,14 @@
                 doubleRound = settings.doubleRound !== undefined ? settings.doubleRound : true;
             }
             
+            // Configura elementos iniciais
             const teamCountInput = document.getElementById('team-count');
             teamCountInput.value = savedTeams ? JSON.parse(savedTeams).length : 8;
             
             updateToggleButton();
             generateTeamFields(parseInt(teamCountInput.value));
             
+            // Preenche nomes existentes
             if (savedTeams) {
                 const teams = JSON.parse(savedTeams);
                 teams.forEach((team, index) => {
@@ -61,6 +57,7 @@
             }
         });
 
+        // Botão de alternar formato
         document.getElementById('toggle-format').addEventListener('click', function() {
             doubleRound = !doubleRound;
             updateToggleButton();
@@ -114,6 +111,7 @@
                 return;
             }
             
+            // Salva times e configurações
             localStorage.setItem('customTeams', JSON.stringify(teams));
             localStorage.setItem('tournamentSettings', JSON.stringify({ doubleRound }));
             
