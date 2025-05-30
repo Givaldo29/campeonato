@@ -11,24 +11,22 @@
         <h1>Gerador de Times</h1>
         
         <div class="input-section">
-            <label for="team-count">Número de Times (2-20):</label>
-            <input type="number" id="team-count" min="2" max="20" value="8">
-            
             <div class="toggle-section">
-                <span>Formato do Campeonato:</span>
+                <span>Formato:</span>
                 <button id="toggle-format" class="toggle-button">Turno e Returno</button>
             </div>
             
-            <button id="generate-fields">Gerar Campos</button>
+            <button id="add-field" class="add-button">+ Adicionar Time</button>
             
             <div id="team-inputs"></div>
             
-            <button id="save-teams" class="save-button">Salvar Times e Voltar</button>
+            <button id="save-teams" class="save-button">Salvar e Voltar</button>
         </div>
     </div>
 
     <script>
         let doubleRound = true;
+        let currentFieldCount = 0;
 
         document.addEventListener('DOMContentLoaded', function() {
             const savedTeams = localStorage.getItem('customTeams');
@@ -39,18 +37,16 @@
                 doubleRound = settings.doubleRound !== undefined ? settings.doubleRound : true;
             }
             
-            const teamCountInput = document.getElementById('team-count');
-            teamCountInput.value = savedTeams ? JSON.parse(savedTeams).length : 8;
-            
             updateToggleButton();
-            generateTeamFields(parseInt(teamCountInput.value));
             
             if (savedTeams) {
                 const teams = JSON.parse(savedTeams);
-                teams.forEach((team, index) => {
-                    const input = document.getElementById(`team-${index}`);
-                    if (input) input.value = team.name;
+                teams.forEach(team => {
+                    addTeamField(team.name);
                 });
+            } else {
+                addTeamField("Time 1");
+                addTeamField("Time 2");
             }
         });
 
@@ -65,34 +61,82 @@
             button.style.backgroundColor = doubleRound ? '#009933' : '#cc3300';
         }
 
-        function generateTeamFields(count) {
-            const container = document.getElementById('team-inputs');
-            container.innerHTML = '';
+        function addTeamField(initialValue = "") {
+            if (currentFieldCount >= 20) {
+                alert('Máximo de 20 times atingido!');
+                return;
+            }
             
-            for (let i = 0; i < count; i++) {
-                const div = document.createElement('div');
-                div.className = 'team-input-row';
-                div.innerHTML = `
-                    <label for="team-${i}">Time ${i + 1}:</label>
-                    <input type="text" id="team-${i}" placeholder="Nome do Time">
-                `;
-                container.appendChild(div);
+            const container = document.getElementById('team-inputs');
+            const index = currentFieldCount;
+            
+            const div = document.createElement('div');
+            div.className = 'team-input-row';
+            div.innerHTML = `
+                <input type="text" id="team-${index}" placeholder="Nome do Time" value="${initialValue}">
+                <button class="remove-row-btn" data-index="${index}">×</button>
+            `;
+            container.appendChild(div);
+            
+            div.querySelector('.remove-row-btn').addEventListener('click', function() {
+                removeTeamField(index);
+            });
+
+            // Adiciona verificação de nome duplicado ao digitar
+            div.querySelector('input').addEventListener('input', function() {
+                checkDuplicateNames();
+            });
+            
+            currentFieldCount++;
+            
+            setTimeout(() => {
+                document.getElementById(`team-${index}`).focus();
+            }, 100);
+        }
+
+        function checkDuplicateNames() {
+            const inputs = document.querySelectorAll('#team-inputs input[type="text"]');
+            const names = Array.from(inputs).map(input => input.value.trim().toLowerCase());
+            
+            inputs.forEach(input => {
+                const currentName = input.value.trim().toLowerCase();
+                if (currentName === '') return;
+                
+                const duplicates = names.filter(name => name === currentName).length;
+                if (duplicates > 1) {
+                    input.style.border = '2px solid red';
+                    input.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+                } else {
+                    input.style.border = '1px solid #444';
+                    input.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }
+            });
+        }
+
+        function removeTeamField(index) {
+            if (currentFieldCount <= 2) {
+                alert('Mínimo de 2 times!');
+                return;
+            }
+            
+            const container = document.getElementById('team-inputs');
+            const row = document.querySelector(`.team-input-row button[data-index="${index}"]`)?.parentNode;
+            if (row) {
+                container.removeChild(row);
+                currentFieldCount--;
+                reorganizeFields();
+                checkDuplicateNames(); // Verifica novamente após remover
             }
         }
 
-        document.getElementById('generate-fields').addEventListener('click', function() {
-            const count = parseInt(document.getElementById('team-count').value);
-            if (count < 2 || count > 20) {
-                alert('Por favor, insira um número entre 2 e 20');
-                return;
-            }
-            generateTeamFields(count);
+        document.getElementById('add-field').addEventListener('click', function() {
+            addTeamField();
         });
 
         document.getElementById('save-teams').addEventListener('click', function() {
             const inputs = document.querySelectorAll('#team-inputs input[type="text"]');
-            const teams = Array.from(inputs).map(input => ({
-                name: input.value.trim() || `Time ${parseInt(input.id.split('-')[1]) + 1}`,
+            const teams = Array.from(inputs).map((input, index) => ({
+                name: input.value.trim() || `Time ${index + 1}`,
                 points: 0,
                 wins: 0,
                 draws: 0,
@@ -103,7 +147,17 @@
             }));
             
             if (teams.length < 2) {
-                alert('Você precisa criar pelo menos 2 times!');
+                alert('Mínimo de 2 times!');
+                return;
+            }
+
+            // Verifica nomes duplicados antes de salvar
+            const names = teams.map(team => team.name.toLowerCase());
+            const hasDuplicates = new Set(names).size !== names.length;
+            
+            if (hasDuplicates) {
+                alert('Existem times com nomes duplicados! Por favor, corrija antes de salvar.');
+                checkDuplicateNames(); // Destaca os campos com problemas
                 return;
             }
             
@@ -122,124 +176,120 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            padding: 20px;
+            padding: 15px;
             background: linear-gradient(rgba(0, 50, 0, 0.7), rgba(0, 30, 0, 0.8));
             color: #fff;
         }
         
         .container {
-            max-width: 600px;
+            max-width: 100%;
             margin: 0 auto;
             background-color: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
         
         h1 {
             text-align: center;
-            margin-bottom: 20px;
-            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
         }
         
         .input-section {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
         
         .toggle-section {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin: 10px 0;
-        }
-        
-        .toggle-section span {
-            font-weight: bold;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
         }
         
         .toggle-button {
-            padding: 8px 15px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
             background-color: #009933;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s;
+        }
+        
+        button {
+            padding: 10px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .add-button {
+            background-color: #009933;
+            width: 100%;
         }
         
         .team-input-row {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
         
-        label {
-            min-width: 80px;
-            font-weight: bold;
-        }
-        
-        input[type="number"], input[type="text"] {
-            padding: 8px 12px;
+        input[type="text"] {
+            padding: 8px 10px;
             border-radius: 5px;
             border: 1px solid #444;
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
             flex-grow: 1;
+            font-size: 0.9rem;
         }
         
-        input[type="number"] {
-            width: 60px;
-            text-align: center;
-        }
-        
-        button {
-            padding: 10px 15px;
-            background-color: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #0055aa;
-        }
-        
-        #generate-fields {
-            background-color: #009933;
-        }
-        
-        #generate-fields:hover {
-            background-color: #008822;
+        .remove-row-btn {
+            background-color: #cc3300;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            min-width: auto;
         }
         
         #save-teams {
-            margin-top: 20px;
+            margin-top: 15px;
             background-color: #0066cc;
+            width: 100%;
+            padding: 10px;
         }
         
         #team-inputs {
-            max-height: 400px;
+            max-height: 50vh;
             overflow-y: auto;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 5px;
+            padding: 5px;
         }
         
-        @media (max-width: 600px) {
-            .team-input-row {
-                flex-direction: column;
-                align-items: flex-start;
+        @media (max-width: 360px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
             }
             
             input[type="text"] {
-                width: 100%;
+                padding: 6px 8px;
+                font-size: 0.85rem;
+            }
+            
+            button {
+                padding: 8px;
+                font-size: 0.85rem;
             }
         }
     </style>
