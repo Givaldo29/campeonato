@@ -49,23 +49,24 @@ h2 {
     -webkit-overflow-scrolling: touch;
     margin-bottom: 10px;
     border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: transparent; /* Alterado para transparente */
 }
 
 table {
     width: 100%;
     min-width: 450px;
     border-collapse: collapse;
+    background-color: transparent; /* Alterado para transparente */
 }
 
 th, td {
     padding: 8px 5px;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Bordas mais claras */
 }
 
 th {
-    background-color: rgba(0, 100, 0, 0.8);
+    background-color: rgba(0, 100, 0, 0.5); /* Mais transparente */
     color: white;
     position: sticky;
     top: 0;
@@ -94,7 +95,7 @@ input[type="number"] {
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 4px;
     text-align: center;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.3); /* Mais transparente */
     color: white;
     font-weight: bold;
 }
@@ -104,13 +105,13 @@ input[type="number"] {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    background-color: rgba(0, 80, 0, 0.6);
+    background-color: rgba(0, 80, 0, 0.5); /* Mais transparente */
     border-radius: 8px;
 }
 
 .round-navigation button {
     padding: 8px 15px;
-    background-color: rgba(0, 120, 0, 0.8);
+    background-color: rgba(0, 120, 0, 0.6); /* Mais transparente */
     color: white;
     border: none;
     border-radius: 5px;
@@ -119,7 +120,7 @@ input[type="number"] {
 }
 
 .round-navigation button:active {
-    background-color: rgba(0, 150, 0, 0.9);
+    background-color: rgba(0, 150, 0, 0.7); /* Mais transparente */
     transform: scale(0.95);
 }
 
@@ -138,7 +139,7 @@ input[type="number"] {
 .reset-button {
     flex: 1;
     padding: 12px;
-    background-color: rgba(200, 0, 0, 0.7);
+    background-color: rgba(200, 0, 0, 0.6); /* Mais transparente */
     color: white;
     border: none;
     border-radius: 5px;
@@ -149,18 +150,18 @@ input[type="number"] {
 }
 
 .reset-button:hover {
-    background-color: rgba(180, 0, 0, 0.8);
+    background-color: rgba(180, 0, 0, 0.7); /* Mais transparente */
 }
 
 .reset-button:active {
-    background-color: rgba(160, 0, 0, 0.9);
+    background-color: rgba(160, 0, 0, 0.8); /* Mais transparente */
     transform: scale(0.98);
 }
 
 .generator-button {
     flex: 1;
     padding: 12px;
-    background-color: rgba(0, 80, 160, 0.7);
+    background-color: rgba(0, 80, 160, 0.6); /* Mais transparente */
     color: white;
     border: none;
     border-radius: 5px;
@@ -171,11 +172,11 @@ input[type="number"] {
 }
 
 .generator-button:hover {
-    background-color: rgba(0, 100, 180, 0.8);
+    background-color: rgba(0, 100, 180, 0.7); /* Mais transparente */
 }
 
 .generator-button:active {
-    background-color: rgba(0, 120, 200, 0.9);
+    background-color: rgba(0, 120, 200, 0.8); /* Mais transparente */
     transform: scale(0.98);
 }
 
@@ -187,6 +188,57 @@ input[type="number"] {
     color: rgba(255, 255, 255, 0.7);
     background-color: rgba(0, 0, 0, 0.3);
     border-radius: 5px;
+}
+
+/* Estilos para a imagem de fundo nas tabelas */
+#classification {
+    position: relative;
+    overflow: hidden;
+}
+
+#classification::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('fundo.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.3; /* Aumentei a opacidade da imagem */
+    z-index: -1;
+}
+
+#classification th,
+#classification td {
+    background-color: rgba(0, 0, 0, 0.3); /* Muito mais transparente */
+}
+
+#matches {
+    position: relative;
+    overflow: hidden;
+}
+
+#matches::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('fundo.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.3; /* Aumentei a opacidade da imagem */
+    z-index: -1;
+}
+
+#matches th,
+#matches td {
+    background-color: rgba(0, 0, 0, 0.3); /* Muito mais transparente */
 }
 
 @media (max-width: 768px) {
@@ -230,6 +282,12 @@ input[type="number"] {
     .reset-button, .generator-button {
         padding: 10px;
         font-size: 0.9rem;
+    }
+
+    /* Ajustes para a imagem de fundo em telas pequenas */
+    #classification::before,
+    #matches::before {
+        opacity: 0.25;
     }
 }
 
