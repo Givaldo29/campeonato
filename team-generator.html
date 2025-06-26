@@ -428,6 +428,7 @@
                     if (confirm(`Tem certeza que deseja remover o time "${teamName}"?`)) {
                         removeTeamField(index);
                         found = true;
+                        return;
                     }
                 }
             });
@@ -441,6 +442,8 @@
             const inputs = Array.from(document.querySelectorAll('#team-inputs input[type="text"]'));
             const container = document.getElementById('team-inputs');
             container.innerHTML = '';
+            
+            currentFieldCount = 0;
             
             inputs.forEach((input, index) => {
                 addTeamField(input.value);
