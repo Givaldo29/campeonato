@@ -493,6 +493,13 @@
                 return;
             }
 
+            // Validação para número ímpar de times
+            if (teams.length % 2 !== 0) {
+                if (!confirm('Número ímpar de times selecionados. Um time ficará de folga em cada rodada. Continuar?')) {
+                    return;
+                }
+            }
+
             const names = teams.map(team => team.name.toLowerCase());
             const hasDuplicates = new Set(names).size !== names.length;
             

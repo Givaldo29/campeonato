@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "1.0.1";
 const LAST_UPDATE = new Date().toLocaleDateString('pt-BR');
 
 let teams = [];
@@ -22,11 +22,7 @@ function initializeTeams() {
             { name: "São Paulo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
             { name: "Palmeiras", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
             { name: "Corinthians", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-            { name: "Santos", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-            { name: "Flamengo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-            { name: "Fluminense", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-            { name: "Botafogo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-            { name: "Cruzeiro", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 }
+            { name: "Santos", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 }
         ];
         localStorage.setItem('customTeams', JSON.stringify(teams));
     }
@@ -40,15 +36,22 @@ function initializeTeams() {
 function generateRoundRobinMatches(teams) {
     const numTeams = teams.length;
     const rounds = [];
-    const half = Math.ceil(numTeams / 2);
     const teamList = teams.map(team => team.name);
-
-    for (let i = 0; i < numTeams - 1; i++) {
+    
+    const isOdd = numTeams % 2 !== 0;
+    if (isOdd) {
+        teamList.push(null);
+    }
+    
+    const half = Math.ceil(numTeams / 2);
+    
+    for (let i = 0; i < (isOdd ? numTeams : numTeams - 1); i++) {
         const round = [];
         for (let j = 0; j < half; j++) {
             const team1 = teamList[j];
-            const team2 = teamList[numTeams - 1 - j];
-            if (team2) {
+            const team2 = teamList[teamList.length - 1 - j];
+            
+            if (team1 && team2) {
                 const existingMatch = findExistingMatch(team1, team2);
                 if (existingMatch) {
                     round.push(existingMatch);
@@ -60,6 +63,7 @@ function generateRoundRobinMatches(teams) {
         rounds.push(round);
         teamList.splice(1, 0, teamList.pop());
     }
+    
     return rounds;
 }
 
@@ -246,6 +250,29 @@ function renderMatches() {
         document.getElementById(`score1-${index}`).addEventListener('input', handleInput);
         document.getElementById(`score2-${index}`).addEventListener('input', handleInput);
     });
+    
+    if (teams.length % 2 !== 0) {
+        const allTeams = new Set(teams.map(t => t.name));
+        const playingTeams = new Set();
+        
+        rounds[currentRound].forEach(match => {
+            playingTeams.add(match.team1);
+            playingTeams.add(match.team2);
+        });
+        
+        const byeTeam = [...allTeams].find(team => !playingTeams.has(team));
+        
+        if (byeTeam) {
+            const byeRow = document.createElement("tr");
+            byeRow.className = "bye-row";
+            byeRow.innerHTML = `
+                <td colspan="3" class="bye-info">
+                    ${byeTeam} está de folga nesta rodada
+                </td>
+            `;
+            tbody.appendChild(byeRow);
+        }
+    }
 }
 
 function updateRoundInfo() {
