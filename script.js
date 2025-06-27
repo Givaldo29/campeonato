@@ -1,5 +1,4 @@
 const APP_VERSION = "1.0.1";
-const LAST_UPDATE = new Date().toLocaleDateString('pt-BR');
 
 let teams = [];
 let rounds = [];
@@ -283,7 +282,7 @@ function updateRoundInfo() {
 function updateVersionDisplay() {
     const versionElement = document.getElementById('app-version');
     if (versionElement) {
-        versionElement.textContent = `Versão ${APP_VERSION} | Atualizado em ${LAST_UPDATE}`;
+        versionElement.textContent = `Versão ${APP_VERSION}`;
         versionElement.style.transition = 'all 0.3s';
         versionElement.style.color = '#4CAF50';
         setTimeout(() => {

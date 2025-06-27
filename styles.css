@@ -181,13 +181,29 @@ input[type="number"] {
 }
 
 .version-info {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
     margin-top: 15px;
     padding: 8px;
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.7);
     background-color: rgba(0, 0, 0, 0.3);
     border-radius: 5px;
+}
+
+.developer {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+@media (max-width: 480px) {
+    .version-info {
+        font-size: 0.75rem;
+        padding: 6px;
+        gap: 6px;
+    }
 }
 
 #classification {
@@ -326,8 +342,9 @@ input[type="number"] {
     }
     
     .version-info {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         padding: 6px;
+        gap: 6px;
     }
     
     .bye-row td {
