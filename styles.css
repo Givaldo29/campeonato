@@ -17,7 +17,7 @@ body {
     max-width: 100%;
     margin: 0 auto;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
@@ -27,7 +27,7 @@ h1 {
     margin: 10px 0;
     padding: 10px;
     font-size: 1.3rem;
-    background-color: rgba(0, 100, 0, 0.8);
+    background-color: rgba(0, 100, 0, 0.6);
     border-radius: 8px;
 }
 
@@ -36,7 +36,7 @@ h2 {
     margin: 8px 0;
     padding: 8px;
     font-size: 1.1rem;
-    background-color: rgba(0, 80, 0, 0.7);
+    background-color: rgba(0, 80, 0, 0.5);
     border-radius: 6px;
 }
 
@@ -117,10 +117,15 @@ input[type="number"] {
     border-radius: 5px;
     font-weight: bold;
     cursor: pointer;
+    transition: all 0.2s;
+}
+
+.round-navigation button:hover {
+    background-color: rgba(0, 140, 0, 0.7);
 }
 
 .round-navigation button:active {
-    background-color: rgba(0, 150, 0, 0.7);
+    background-color: rgba(0, 160, 0, 0.8);
     transform: scale(0.95);
 }
 
@@ -198,14 +203,6 @@ input[type="number"] {
     opacity: 0.9;
 }
 
-@media (max-width: 480px) {
-    .version-info {
-        font-size: 0.75rem;
-        padding: 6px;
-        gap: 6px;
-    }
-}
-
 #classification {
     position: relative;
     overflow: hidden;
@@ -222,13 +219,13 @@ input[type="number"] {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.3;
+    opacity: 0.5;
     z-index: -1;
 }
 
 #classification th,
 #classification td {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 #matches {
@@ -247,17 +244,17 @@ input[type="number"] {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.3;
+    opacity: 0.5;
     z-index: -1;
 }
 
 #matches th,
 #matches td {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .bye-row td {
-    background-color: rgba(0, 0, 0, 0.5) !important;
+    background-color: rgba(0, 0, 0, 0.4) !important;
     border-top: 2px dashed rgba(255, 255, 255, 0.3) !important;
     text-align: center;
     font-style: italic;
@@ -269,6 +266,7 @@ input[type="number"] {
     font-size: 0.9rem;
 }
 
+/* Media Queries para responsividade */
 @media (max-width: 768px) {
     table {
         min-width: unset;
