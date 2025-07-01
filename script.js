@@ -1,28 +1,44 @@
-const APP_VERSION = "1.0.1";
+const APP_VERSION = "1.0.2";
 
 let teams = [];
 let rounds = [];
 let currentRound = 0;
 let doubleRound = true;
 
+// Função para carregar times padrão
+function getDefaultTeams() {
+    return [
+        { name: "São Paulo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
+        { name: "Palmeiras", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
+        { name: "Corinthians", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
+        { name: "Santos", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 }
+    ];
+}
+
+// Inicializa os times
 function initializeTeams() {
     const savedTeams = localStorage.getItem('customTeams');
     const savedSettings = localStorage.getItem('tournamentSettings');
     
     if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        doubleRound = settings.doubleRound !== undefined ? settings.doubleRound : true;
+        try {
+            const settings = JSON.parse(savedSettings);
+            doubleRound = settings.doubleRound !== undefined ? settings.doubleRound : true;
+        } catch (e) {
+            console.error("Erro ao carregar configurações:", e);
+            doubleRound = true;
+        }
     }
 
     if (savedTeams) {
-        teams = JSON.parse(savedTeams);
+        try {
+            teams = JSON.parse(savedTeams);
+        } catch (e) {
+            console.error("Erro ao carregar times:", e);
+            teams = getDefaultTeams();
+        }
     } else {
-        teams = [
-            { name: "São Paulo", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-            { name: "Palmeiras", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-            { name: "Corinthians", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 },
-            { name: "Santos", points: 0, wins: 0, draws: 0, losses: 0, gp: 0, gc: 0, sg: 0 }
-        ];
+        teams = getDefaultTeams();
         localStorage.setItem('customTeams', JSON.stringify(teams));
     }
     
@@ -32,6 +48,7 @@ function initializeTeams() {
     updateRoundInfo();
 }
 
+// Gera os jogos no sistema de turno/returno
 function generateRoundRobinMatches(teams) {
     const numTeams = teams.length;
     const rounds = [];
@@ -66,6 +83,7 @@ function generateRoundRobinMatches(teams) {
     return rounds;
 }
 
+// Encontra jogos existentes
 function findExistingMatch(team1, team2) {
     for (const round of rounds) {
         for (const match of round) {
@@ -78,6 +96,7 @@ function findExistingMatch(team1, team2) {
     return null;
 }
 
+// Gera todos os jogos
 function generateMatches() {
     rounds = generateRoundRobinMatches(teams);
     
@@ -94,61 +113,111 @@ function generateMatches() {
     }
 }
 
+// Carrega dados salvos
 function loadSavedData() {
-    initializeTeams();
     const savedData = localStorage.getItem('campeonatoData');
-    if (savedData) {
-        const { savedRounds, savedCurrentRound, savedTeams } = JSON.parse(savedData);
-        
-        if (savedRounds) rounds = savedRounds;
-        if (savedCurrentRound !== undefined) currentRound = savedCurrentRound;
-        if (savedTeams) {
-            savedTeams.forEach(savedTeam => {
-                const team = teams.find(t => t.name === savedTeam.name);
-                if (team) Object.assign(team, savedTeam);
-            });
+    const savedTeams = localStorage.getItem('customTeams');
+    const savedSettings = localStorage.getItem('tournamentSettings');
+
+    // Carrega times
+    if (savedTeams) {
+        try {
+            teams = JSON.parse(savedTeams);
+        } catch (e) {
+            console.error("Erro ao carregar times:", e);
+            teams = getDefaultTeams();
+        }
+    } else {
+        teams = getDefaultTeams();
+    }
+
+    // Carrega configurações
+    if (savedSettings) {
+        try {
+            const settings = JSON.parse(savedSettings);
+            doubleRound = settings.doubleRound !== undefined ? settings.doubleRound : true;
+        } catch (e) {
+            console.error("Erro ao carregar configurações:", e);
+            doubleRound = true;
         }
     }
-    
+
+    // Carrega rodadas
+    if (savedData) {
+        try {
+            const { savedRounds, savedCurrentRound } = JSON.parse(savedData);
+            if (savedRounds) rounds = savedRounds;
+            if (savedCurrentRound !== undefined) currentRound = savedCurrentRound;
+        } catch (e) {
+            console.error("Erro ao carregar dados do campeonato:", e);
+            generateMatches();
+        }
+    } else {
+        generateMatches();
+    }
+
     updateClassification();
     renderMatches();
     updateRoundInfo();
 }
 
+// Salva todos os dados
 function saveData() {
     const dataToSave = {
         savedRounds: rounds,
         savedCurrentRound: currentRound,
         savedTeams: teams
     };
-    localStorage.setItem('campeonatoData', JSON.stringify(dataToSave));
-}
-
-function resetAllMatches() {
-    if (confirm('Tem certeza que deseja zerar TODOS os resultados do campeonato?\nEsta ação não pode ser desfeita.')) {
-        teams.forEach(team => {
-            team.points = 0;
-            team.wins = 0;
-            team.draws = 0;
-            team.losses = 0;
-            team.gp = 0;
-            team.gc = 0;
-            team.sg = 0;
-        });
-        
-        generateMatches();
-        currentRound = 0;
-        
-        renderMatches();
-        updateClassification();
-        updateRoundInfo();
-        saveData();
-        
-        alert('Todos os resultados foram resetados e os jogos regenerados!');
+    
+    try {
+        localStorage.setItem('campeonatoData', JSON.stringify(dataToSave));
+        console.log("Dados salvos com sucesso:", dataToSave);
+    } catch (e) {
+        console.error("Erro ao salvar dados:", e);
     }
 }
 
+// Zera todos os resultados (FUNÇÃO CORRIGIDA)
+function resetAllMatches() {
+    if (confirm('Tem certeza que deseja zerar TODOS os resultados do campeonato?\nEsta ação não pode ser desfeita.')) {
+        // 1. Reseta estatísticas dos times
+        teams = teams.map(team => ({
+            name: team.name,
+            points: 0,
+            wins: 0,
+            draws: 0,
+            losses: 0,
+            gp: 0,
+            gc: 0,
+            sg: 0
+        }));
+        
+        // 2. Reseta todos os placares
+        rounds = rounds.map(round => 
+            round.map(match => ({
+                team1: match.team1,
+                team2: match.team2,
+                score1: null,
+                score2: null
+            }))
+        );
+        
+        // 3. Atualiza a exibição
+        currentRound = 0;
+        renderMatches();
+        updateClassification();
+        updateRoundInfo();
+        
+        // 4. Salva os dados resetados
+        saveData();
+        
+        alert('Todos os resultados foram resetados com sucesso!');
+    }
+}
+
+// Atualiza a classificação
 function updateClassification() {
+    // Reseta estatísticas
     teams.forEach(team => {
         team.points = 0;
         team.wins = 0;
@@ -159,6 +228,7 @@ function updateClassification() {
         team.sg = 0;
     });
 
+    // Calcula estatísticas dos jogos
     rounds.flat().forEach(match => {
         if (match.score1 !== null && match.score2 !== null) {
             const team1 = teams.find(team => team.name === match.team1);
@@ -190,11 +260,14 @@ function updateClassification() {
         }
     });
 
+    // Ordena a classificação
     teams.sort((a, b) => b.points - a.points || b.wins - a.wins || b.sg - a.sg || b.gp - a.gp);
+    
     renderClassification();
     saveData();
 }
 
+// Renderiza a tabela de classificação
 function renderClassification() {
     const tbody = document.querySelector("#classification tbody");
     tbody.innerHTML = "";
@@ -215,6 +288,7 @@ function renderClassification() {
     });
 }
 
+// Renderiza os jogos da rodada atual
 function renderMatches() {
     const tbody = document.querySelector("#matches tbody");
     tbody.innerHTML = "";
@@ -250,6 +324,7 @@ function renderMatches() {
         document.getElementById(`score2-${index}`).addEventListener('input', handleInput);
     });
     
+    // Mostra time de folga se necessário
     if (teams.length % 2 !== 0) {
         const allTeams = new Set(teams.map(t => t.name));
         const playingTeams = new Set();
@@ -274,22 +349,25 @@ function renderMatches() {
     }
 }
 
+// Atualiza a exibição da rodada
 function updateRoundInfo() {
     document.getElementById("round-info").textContent = `Rodada ${currentRound + 1} de ${rounds.length}`;
     saveData();
 }
 
+// Mostra a versão do app
 function updateVersionDisplay() {
     const versionElement = document.getElementById('app-version');
     if (versionElement) {
         versionElement.textContent = `Versão ${APP_VERSION}`;
-        versionElement.style.transition = 'all 0.3s';
-        versionElement.style.color = '#4CAF50';
-        setTimeout(() => {
-            versionElement.style.color = 'rgba(255, 255, 255, 0.7)';
-        }, 1000);
     }
 }
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    loadSavedData();
+    updateVersionDisplay();
+});
 
 document.getElementById("prev-round").addEventListener("click", () => {
     if (currentRound > 0) {
@@ -307,12 +385,6 @@ document.getElementById("next-round").addEventListener("click", () => {
     }
 });
 
-document.querySelectorAll('input[type="number"]').forEach(input => {
-    input.addEventListener('focus', function() {
-        this.select();
-    });
-});
-
 document.getElementById('reset-all').addEventListener('click', resetAllMatches);
 
 document.getElementById('team-generator').addEventListener('click', function() {
@@ -328,10 +400,4 @@ window.addEventListener('message', function(event) {
         }
         initializeTeams();
     }
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-    loadSavedData();
-    updateVersionDisplay();
-    window.addEventListener('focus', updateVersionDisplay);
 });
